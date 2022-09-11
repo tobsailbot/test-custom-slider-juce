@@ -36,16 +36,16 @@ public:
         auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
 
         // fill
-        g.setColour(juce::Colours::orange);
+        g.setColour(juce::Colours::indigo);
         g.fillEllipse(rx, ry, rw, rw);
 
         // outline
-        g.setColour(juce::Colours::red);
-        g.drawEllipse(rx, ry, rw, rw, 1.0f);
+        g.setColour(juce::Colours::white);
+        g.drawEllipse(rx, ry, rw, rw, 2.0f);
 
         juce::Path p;
-        auto pointerLength = radius * 0.33f;
-        auto pointerThickness = 2.0f;
+        auto pointerLength = radius * 0.5f;
+        auto pointerThickness = 3.0f;
         p.addRectangle(-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
         p.applyTransform(juce::AffineTransform::rotation(angle).translated(centreX, centreY));
 
@@ -372,145 +372,6 @@ private:
     bool isVertical;
 };
 
-struct BetterSlider : public Slider
-{
-    BetterSlider ()
-        : doLog(false)
-    {}
-
-    String getTextFromValue(double v) override
-    {
-        if (textFromValueFunction != nullptr)
-            return textFromValueFunction(v) 
-            + getTextValueSuffix(); // Slider::getTextFromValue() omits this.
-
-        if (getNumDecimalPlacesToDisplay() > 0)
-            return String(v, getNumDecimalPlacesToDisplay()) + getTextValueSuffix();
-
-        return String(roundToInt(v)) + getTextValueSuffix();
-    }
-
-    double proportionOfLengthToValue(double proportion) override
-    {
-        if (doLog) 
-        {
-            double min = getMinimum();
-            double max = getMaximum();
-            return min * pow(max / min, proportion);
-        }
-        else 
-        {
-            return Slider::proportionOfLengthToValue(proportion);
-        }
-    }
-
-    double valueToProportionOfLength(double value) override
-    {
-        if (doLog)
-        {
-            double min = getMinimum();
-            double max = getMaximum();
-            return log(value / min) / log(max / min);
-        } 
-        else
-        {
-            return Slider::valueToProportionOfLength(value);
-        }
-    }
-
-    bool doLog;
-};
-
-class ParamWidget
-{
-public:
-    ParamWidget(AudioProcessorEditor& parent,
-        AudioProcessorValueTreeState& vts,
-        const String& parameterID,
-        Rectangle<int> displayNameBounds,
-        const String& displayNameJustification)
-    {
-        parent.addAndMakeVisible(displayName);
-        displayName.setBounds(displayNameBounds);
-
-        if (displayNameJustification == "above")
-            displayName.setJustificationType(Justification::centredTop);
-        else if (displayNameJustification == "below")
-            displayName.setJustificationType(Justification::centredBottom);
-        else if (displayNameJustification == "left")
-            displayName.setJustificationType(Justification::centredLeft);
-        else if (displayNameJustification == "right")
-            displayName.setJustificationType(Justification::centredRight);
-
-        displayName.setText(vts.getParameter(parameterID)->name, dontSendNotification);
-        displayName.setColour(Label::textColourId, getForegroundColor());
-    }
-
-    virtual ~ParamWidget() {}
-
-protected:
-    Label displayName;
-    float getFloatParameterValue(AudioProcessorValueTreeState& vts, const String& parameterID) {
-        return gfp(vts.getRawParameterValue(parameterID));
-    }
-private:
-    float gfp(std::atomic<float>* paValue) {
-        return paValue->load(std::memory_order_relaxed);
-    }
-    float gfp(float* pValue) {
-        return (*pValue);
-    }
-};
-
-class SliderKnob : public ParamWidget
-{
-public:
-    SliderKnob(AudioProcessorEditor& parent,
-        AudioProcessorValueTreeState& vts,
-        const String& parameterID,
-        const String& displayNameJustification,
-        const String& style,
-        const String& editBoxPosition,
-        bool doLog, 
-        Rectangle<int> displayNameBounds,
-        Rectangle<int> controlBounds,
-        LookAndFeel* filmstrip)
-        : ParamWidget(parent, vts, parameterID, displayNameBounds, displayNameJustification)
-        //attachment(vts, parameterID, slider)
-    {
-        int textBoxWidth = 75;
-		parent.addAndMakeVisible(slider);
-        slider.doLog = doLog;
-		slider.setBounds(controlBounds);
-        slider.setTooltip(displayName.getText());
-        if (style == "hslider")
-            slider.setSliderStyle(Slider::LinearHorizontal);
-        else if (style == "vslider")
-            slider.setSliderStyle(Slider::LinearVertical);
-        else
-            slider.setSliderStyle(Slider::RotaryHorizontalVerticalDrag);
-
-        Slider::TextEntryBoxPosition textBoxPosition = Slider::NoTextBox;
-        if (editBoxPosition == "editleft")
-            textBoxPosition = Slider::TextBoxLeft;
-        else if (editBoxPosition == "editright")
-            textBoxPosition = Slider::TextBoxRight;
-        else if (editBoxPosition == "editabove")
-            textBoxPosition = Slider::TextBoxAbove;
-        else if (editBoxPosition == "editbelow")
-            textBoxPosition = Slider::TextBoxBelow;
-
-        slider.setTextBoxStyle(textBoxPosition, false, textBoxWidth, 20);
-        slider.setColour(Slider::textBoxTextColourId, getForegroundColor());
-        slider.setTextValueSuffix(" " + vts.getParameter(parameterID)->label);
-
-        slider.setLookAndFeel(filmstrip);
-    }
-
-    BetterSlider slider;
-    //SliderAttachment attachment;
-};
-
 
 
 //==============================================================================
@@ -550,20 +411,18 @@ public:
     void paint (Graphics& g) override
     {
         g.fillAll (getBackgroundColor());
-
     }
 
     void resized() override
     {
-        auto border = 32;
+        auto border = 4;
 
         auto area = getLocalBounds();
 
-        auto dialArea = area.removeFromTop(area.getHeight() / 2);
-        dial1.setBounds(dialArea.removeFromLeft(dialArea.getWidth() / 2).reduced(border));
+        auto dialArea = area.removeFromTop(area.getHeight() / 3);
+        dial1.setBounds(dialArea.removeFromLeft(dialArea.getWidth() / 3).reduced(border));
 
         auto buttonHeight = 30;
-
     }
 
 private:
@@ -574,7 +433,7 @@ private:
     OtherLookAndFeel otherLookAndFeel; // [2]
     juce::Slider dial1;
 
-    OwnedArray<ParamWidget> widgets;
+
 
     static const unsigned char notoSansFile[];
     static const int notoSansFileSize;

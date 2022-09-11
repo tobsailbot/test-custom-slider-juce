@@ -38,7 +38,7 @@ public:
         : paramListener(&mStackData),
           parameters(*this, nullptr, "gananciaSimple", {
                 std::make_unique<Parameter>("ganancia", "Ganancia de salida", "",
-                    NormalisableRange<float>(0.f,1.f), 0.1f, [](float val) {return String(val, 3);}, nullptr) })
+                    NormalisableRange<float>(0.f,1.f), 0.5f, [](float val) {return String(val, 3);}, nullptr) })
 
     {
         mStackData.pd = &mPersistentData;
