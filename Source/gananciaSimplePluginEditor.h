@@ -1,5 +1,6 @@
 #pragma once
 
+
 typedef AudioProcessorValueTreeState::SliderAttachment   SliderAttachment;
 typedef AudioProcessorValueTreeState::ButtonAttachment   ButtonAttachment;
 typedef AudioProcessorValueTreeState::ComboBoxAttachment ComboBoxAttachment;
@@ -8,7 +9,7 @@ enum DisplayNamePosition { DisplayNameNone, DisplayNameLeft, DisplayNameRight, D
 
 Colour getBackgroundColor()
 {
-    return Colour::fromFloatRGBA(0.6f, 0.6f, 0.6f, 1.f);
+    return Colour::fromFloatRGBA(0.4f, 0.4f, 0.4f, 1.f);
 }
 
 Colour getForegroundColor()
@@ -21,9 +22,86 @@ class OtherLookAndFeel : public juce::LookAndFeel_V4
 public:
     OtherLookAndFeel()
     {
-        setColour(juce::Slider::thumbColourId, juce::Colours::red);
+        setColour(juce::Slider::thumbColourId, juce::Colours::blue);
+        setColour(juce::Slider::rotarySliderFillColourId, juce::Colours::orange);
+        setColour(juce::Slider::rotarySliderOutlineColourId, juce::Colours::red);
     }
 
+    void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
+        const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider& slider) override
+    {
+        auto outline = slider.findColour(Slider::rotarySliderOutlineColourId);
+        auto fill = slider.findColour(Slider::rotarySliderFillColourId);
+        juce::Image background;
+        juce::Image emoji;
+
+        auto bounds = Rectangle<int>(x, y, width, height).toFloat();
+
+        //background = juce::ImageCache::getFromMemory(BinaryData::background_jpg, BinaryData::background_jpgSize);
+        //g.drawImageWithin(background, 0, 0, bounds.getWidth(), bounds.getHeight(), juce::RectanglePlacement::stretchToFit);
+
+        emoji = juce::ImageCache::getFromMemory(BinaryData::emoji_png, BinaryData::emoji_pngSize);
+        g.drawImageWithin(emoji, 0, 0, bounds.getWidth(), bounds.getHeight(), juce::RectanglePlacement::stretchToFit);
+        //emoji.desaturate();
+        emoji.multiplyAllAlphas(0.5);
+
+        auto radius = jmin(bounds.getWidth(), bounds.getHeight()) / 2.0f;
+        auto toAngle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
+        auto lineW = jmin(20.0f, radius * 0.5f);
+        auto arcRadius = radius - lineW * 0.5f;
+
+        auto rx = 0.0;
+        auto ry = 0.0;
+        auto rw = radius ;
+        auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
+
+        // fill
+        g.setColour(juce::Colours::blue);
+        //g.fillEllipse(rx, ry, rw, rw);
+
+        // fondo del arco, background
+        Path backgroundArc;
+        backgroundArc.addCentredArc(bounds.getCentreX(),
+            bounds.getCentreY(),
+            arcRadius,
+            arcRadius,
+            0.0f,
+            rotaryStartAngle,
+            rotaryEndAngle,
+            true);
+
+        g.setColour(outline);
+        g.strokePath(backgroundArc, PathStrokeType(lineW, PathStrokeType::curved, PathStrokeType::rounded));
+
+        // interior del arcorelleno, fill
+        if (slider.isEnabled())
+        {
+            Path valueArc;
+            valueArc.addCentredArc(bounds.getCentreX(),
+                bounds.getCentreY(),
+                arcRadius,
+                arcRadius,
+                0.0f,     // offset del arco fill
+                rotaryStartAngle,
+                toAngle,
+                true);
+            DBG("message");
+
+            g.setColour(fill);
+            g.strokePath(valueArc, PathStrokeType(lineW, PathStrokeType::beveled, PathStrokeType::rounded));
+        }
+
+
+
+        //auto thumbWidth = lineW * 0;
+        //Point<float> thumbPoint(bounds.getCentreX() + arcRadius * std::cos(toAngle - MathConstants<float>::halfPi),
+        //                        bounds.getCentreY() + arcRadius * std::sin(toAngle - MathConstants<float>::halfPi));
+
+        //g.setColour(slider.findColour(Slider::thumbColourId));
+        //g.fillEllipse(Rectangle<float>(thumbWidth, thumbWidth).withCentre(thumbPoint));
+    }
+
+/*
     void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
         const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider&) override
     {
@@ -35,17 +113,22 @@ public:
         auto rw = radius * 2.0f;
         auto angle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
 
+        // shadow
+        g.setColour(juce::Colours::black);
+        g.fillEllipse(rx-9.0f, ry-8.0f, rw * 1.2f, rw * 1.2f);
         // fill
-        g.setColour(juce::Colours::indigo);
+        g.setColour(juce::Colours::blue);
         g.fillEllipse(rx, ry, rw, rw);
+
 
         // outline
         g.setColour(juce::Colours::white);
         g.drawEllipse(rx, ry, rw, rw, 2.0f);
 
+
         juce::Path p;
-        auto pointerLength = radius * 0.5f;
-        auto pointerThickness = 3.0f;
+        auto pointerLength = radius * 1.0f;
+        auto pointerThickness = 5.0f;
         p.addRectangle(-pointerThickness * 0.5f, -radius, pointerThickness, pointerLength);
         p.applyTransform(juce::AffineTransform::rotation(angle).translated(centreX, centreY));
 
@@ -53,51 +136,7 @@ public:
         g.setColour(juce::Colours::white);
         g.fillPath(p);
     }
-
-    void drawButtonBackground(juce::Graphics& g, juce::Button& button, const juce::Colour& backgroundColour,
-        bool, bool isButtonDown) override
-    {
-        auto buttonArea = button.getLocalBounds();
-        auto edge = 4;
-
-        buttonArea.removeFromLeft(edge);
-        buttonArea.removeFromTop(edge);
-
-        // shadow
-        g.setColour(juce::Colours::darkgrey.withAlpha(0.5f));
-        g.fillRect(buttonArea);
-
-        auto offset = isButtonDown ? -edge / 2 : -edge;
-        buttonArea.translate(offset, offset);
-
-        g.setColour(backgroundColour);
-        g.fillRect(buttonArea);
-    }
-
-    void drawButtonText(juce::Graphics& g, juce::TextButton& button, bool, bool isButtonDown) override
-    {
-        auto font = getTextButtonFont(button, button.getHeight());
-        g.setFont(font);
-        g.setColour(button.findColour(button.getToggleState() ? juce::TextButton::textColourOnId
-            : juce::TextButton::textColourOffId)
-            .withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f));
-
-        auto yIndent = juce::jmin(4, button.proportionOfHeight(0.3f));
-        auto cornerSize = juce::jmin(button.getHeight(), button.getWidth()) / 2;
-
-        auto fontHeight = juce::roundToInt(font.getHeight() * 0.6f);
-        auto leftIndent = juce::jmin(fontHeight, 2 + cornerSize / (button.isConnectedOnLeft() ? 4 : 2));
-        auto rightIndent = juce::jmin(fontHeight, 2 + cornerSize / (button.isConnectedOnRight() ? 4 : 2));
-        auto textWidth = button.getWidth() - leftIndent - rightIndent;
-
-        auto edge = 4;
-        auto offset = isButtonDown ? edge / 2 : 0;
-
-        if (textWidth > 0)
-            g.drawFittedText(button.getButtonText(),
-                leftIndent + offset, yIndent + offset, textWidth, button.getHeight() - yIndent * 2 - edge,
-                juce::Justification::centred, 2);
-    }
+*/
 
 };
 
@@ -117,15 +156,17 @@ public:
         Typeface::Ptr noto = Typeface::createSystemTypefaceFor(notoSansFile, notoSansFileSize);
 
         //widgets.add (new SliderKnob(*this, vts, "ganancia", "right", "hslider", "editright", 0, {10, 30, 152, 30}, {172, 30, 400, 30}, &appdeslnf));
-        setSize(600, 476);
-        
+        setSize(400, 425);
+
+
         setLookAndFeel(&otherLookAndFeel);
         addAndMakeVisible(dial1);
         dial1.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-        //dial1.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
+
+        dial1.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
         dial1.setTextValueSuffix("dB" + vts.getParameter("ganancia")->label); // cambia valor de la etiqueta label
         new SliderAttachment( vts, "ganancia", dial1);
-        dial1.setValue(0.5);
+        dial1.setValue(0.1);
     }
 
     ~gananciaSimpleAudioProcessorEditor()
@@ -140,16 +181,14 @@ public:
         g.fillAll (getBackgroundColor());
     }
 
+
     void resized() override
     {
-        auto border = 4;
 
         auto area = getLocalBounds();
 
-        auto dialArea = area.removeFromTop(area.getHeight() / 3);
-        dial1.setBounds(dialArea.removeFromLeft(dialArea.getWidth() / 3).reduced(border));
-
-        auto buttonHeight = 30;
+        auto dialArea = area;
+        dial1.setBounds(dialArea);
     }
 
 private:
@@ -157,6 +196,7 @@ private:
     AudioProcessorValueTreeState& valueTreeState;
     TooltipWindow tooltip;
     OtherLookAndFeel otherLookAndFeel; // [2]
+    juce::Image background;
     juce::Slider dial1;
 
 

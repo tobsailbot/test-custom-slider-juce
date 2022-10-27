@@ -9,12 +9,17 @@
               pluginAAXCategory="2" pluginAUExportPrefix="gananciaSimpleAU"
               pluginChannelConfigs="{2, 2}" pluginCode="Lukl" pluginDesc="Band Pass and Pink Noise"
               pluginEditorRequiresKeys="0" pluginIsMidiEffectPlugin="0" pluginIsSynth="0"
-              pluginManufacturer="DSP UNLa - Tobias Pilarche" pluginManufacturerCode="DSPU"
+              pluginManufacturer="DSP UNLa - Tobias Pilarche" pluginManufacturerCode="DSPi"
               pluginName="Band Pass and Pink Noise" pluginProducesMidiOut="0"
               pluginRTASCategory="" pluginWantsMidiIn="0" projectType="audioplug"
               reportAppUsage="0" splashScreenColour="Dark" version="1.0.0"
-              jucerFormatVersion="1">
+              jucerFormatVersion="1" defines="JUCE_VST3_CAN_REPLACE_VST2=0"
+              pluginFormats="buildAU,buildStandalone,buildVST3">
   <MAINGROUP id="yjfreO" name="gananciaSimple">
+    <GROUP id="{433E061D-1682-9DBC-0868-35F3D2A9D095}" name="assets">
+      <FILE id="n3utmt" name="emoji.png" compile="0" resource="1" file="assets/emoji.png"/>
+      <FILE id="IU0ffA" name="background.jpg" compile="0" resource="1" file="assets/background.jpg"/>
+    </GROUP>
     <GROUP id="{315416B7-1A91-5F1C-CADC-7954A28EC1BA}" name="Source">
       <FILE compile="0" file="Source/gananciaSimplePluginEditor.h" id="vrMVjK"
             name="gananciaSimplePluginEditor.h" resource="0"/>
