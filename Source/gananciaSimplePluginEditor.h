@@ -36,19 +36,20 @@ public:
         juce::Image emoji;
 
         auto bounds = Rectangle<int>(x, y, width, height).toFloat();
+        auto trasformer = AffineTransform::AffineTransform(0.5f, 0.4f, 0.5f, 0.5f, 0.5f, 0.0f );
 
         //background = juce::ImageCache::getFromMemory(BinaryData::background_jpg, BinaryData::background_jpgSize);
         //g.drawImageWithin(background, 0, 0, bounds.getWidth(), bounds.getHeight(), juce::RectanglePlacement::stretchToFit);
 
         emoji = juce::ImageCache::getFromMemory(BinaryData::emoji_png, BinaryData::emoji_pngSize);
-        g.drawImageWithin(emoji, 0, 0, bounds.getWidth(), bounds.getHeight(), juce::RectanglePlacement::stretchToFit);
+        //g.drawImageWithin(emoji, 0, 0, bounds.getWidth(), bounds.getHeight(), juce::RectanglePlacement::stretchToFit);
+        float actual_val = slider.getValue();
+
+        g.drawImageTransformed(emoji, trasformer.rotation(actual_val));
+        
         //emoji.desaturate();
         //emoji.multiplyAllAlphas(0.5);
-        auto tiene_alfa = emoji.hasAlphaChannel();
-        if (tiene_alfa) {
-            DBG("true");
-        }
-        float actual_val = slider.getValue();
+
 
         auto radius = jmin(bounds.getWidth(), bounds.getHeight()) / 2.0f;
         auto toAngle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
