@@ -43,7 +43,12 @@ public:
         emoji = juce::ImageCache::getFromMemory(BinaryData::emoji_png, BinaryData::emoji_pngSize);
         g.drawImageWithin(emoji, 0, 0, bounds.getWidth(), bounds.getHeight(), juce::RectanglePlacement::stretchToFit);
         //emoji.desaturate();
-        emoji.multiplyAllAlphas(0.5);
+        //emoji.multiplyAllAlphas(0.5);
+        auto tiene_alfa = emoji.hasAlphaChannel();
+        if (tiene_alfa) {
+            DBG("true");
+        }
+        float actual_val = slider.getValue();
 
         auto radius = jmin(bounds.getWidth(), bounds.getHeight()) / 2.0f;
         auto toAngle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
@@ -85,10 +90,11 @@ public:
                 rotaryStartAngle,
                 toAngle,
                 true);
-            DBG("message");
 
             g.setColour(fill);
             g.strokePath(valueArc, PathStrokeType(lineW, PathStrokeType::beveled, PathStrokeType::rounded));
+
+            g.setOpacity(0.2f);
         }
 
 
@@ -157,7 +163,6 @@ public:
 
         //widgets.add (new SliderKnob(*this, vts, "ganancia", "right", "hslider", "editright", 0, {10, 30, 152, 30}, {172, 30, 400, 30}, &appdeslnf));
         setSize(400, 425);
-
 
         setLookAndFeel(&otherLookAndFeel);
         addAndMakeVisible(dial1);
