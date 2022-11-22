@@ -36,7 +36,8 @@ public:
         juce::Image emoji;
 
         auto bounds = Rectangle<int>(x, y, width, height).toFloat();
-        auto trasformer = AffineTransform::AffineTransform(0.5f, 0.4f, 0.5f, 0.5f, 0.5f, 0.0f );
+        auto trasformer = AffineTransform::AffineTransform().scaled(0.8f);
+
 
         //background = juce::ImageCache::getFromMemory(BinaryData::background_jpg, BinaryData::background_jpgSize);
         //g.drawImageWithin(background, 0, 0, bounds.getWidth(), bounds.getHeight(), juce::RectanglePlacement::stretchToFit);
@@ -44,8 +45,8 @@ public:
         emoji = juce::ImageCache::getFromMemory(BinaryData::emoji_png, BinaryData::emoji_pngSize);
         //g.drawImageWithin(emoji, 0, 0, bounds.getWidth(), bounds.getHeight(), juce::RectanglePlacement::stretchToFit);
         float actual_val = slider.getValue();
-
-        g.drawImageTransformed(emoji, trasformer.rotation(actual_val));
+        g.drawImageTransformed(emoji, trasformer.rotated(actual_val*4, (512.0f*0.8f)/2, (512.0f * 0.8f)/2));
+        //g.drawImageTransformed(emoji, trasformer);
         
         //emoji.desaturate();
         //emoji.multiplyAllAlphas(0.5);
