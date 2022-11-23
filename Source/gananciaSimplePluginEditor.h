@@ -34,23 +34,38 @@ public:
         auto fill = slider.findColour(Slider::rotarySliderFillColourId);
         juce::Image background;
         juce::Image emoji;
+        juce::Image emoji2;
 
         auto bounds = Rectangle<int>(x, y, width, height).toFloat();
         auto trasformer = AffineTransform::AffineTransform().scaled(0.8f);
-
+        auto scaling_1 = 1.0;
 
         //background = juce::ImageCache::getFromMemory(BinaryData::background_jpg, BinaryData::background_jpgSize);
         //g.drawImageWithin(background, 0, 0, bounds.getWidth(), bounds.getHeight(), juce::RectanglePlacement::stretchToFit);
 
         emoji = juce::ImageCache::getFromMemory(BinaryData::emoji_png, BinaryData::emoji_pngSize);
+        emoji2 = juce::ImageCache::getFromMemory(BinaryData::emoji_png, BinaryData::emoji_pngSize);
+
         //g.drawImageWithin(emoji, 0, 0, bounds.getWidth(), bounds.getHeight(), juce::RectanglePlacement::stretchToFit);
         float actual_val = slider.getValue();
-        g.drawImageTransformed(emoji, trasformer.rotated(actual_val*4, (512.0f*0.8f)/2, (512.0f * 0.8f)/2));
+
+        /* Si el valor de slider es >0.50 entonces scalar imagen a cierto valor,  */
+        if (actual_val > 0.5) {
+            scaling_1 = 0.2;
+        }
+        else {
+            scaling_1 = 1.0;
+        }
+
+        // rotacion de la imagen, teniendo en cuenta el valor del slider y seteando puntos centrales de pivot
+        g.drawImageTransformed(emoji, trasformer.rotated(actual_val*4, (512.0f*0.8f)/2, (512.0f * 0.8f)/2).scaled(scaling_1));
+        g.drawImageTransformed(emoji2, trasformer.rotated(actual_val * 4, (512.0f * 0.8f) / 2, (512.0f * 0.8f) / 2).scaled(0.4));
+        emoji2.desaturate();
         //g.drawImageTransformed(emoji, trasformer);
         
         //emoji.desaturate();
-        //emoji.multiplyAllAlphas(0.5);
-
+       // emoji.multiplyAllAlphas(0.5);
+        DBG(slider.getValue());
 
         auto radius = jmin(bounds.getWidth(), bounds.getHeight()) / 2.0f;
         auto toAngle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
