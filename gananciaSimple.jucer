@@ -4,7 +4,7 @@
               buildAU="0" buildAUv3="0" buildRTAS="0" buildStandalone="0" buildVST="0"
               buildVST3="0" bundleIdentifier="DSP-UNLa---Tobias-Pilarche.gananciaSimple"
               companyCopyright="" companyEmail="" companyName="DSP UNLa - Tobias Pilarche"
-              companyWebsite="" displaySplashScreen="0" enableIAA="0" headerPath=""
+              companyWebsite="" displaySplashScreen="1" enableIAA="0" headerPath=""
               id="NHblJj" includeBinaryInAppConfig="1" name="gananciaSimple"
               pluginAAXCategory="2" pluginAUExportPrefix="gananciaSimpleAU"
               pluginChannelConfigs="{2, 2}" pluginCode="Lukl" pluginDesc="Band Pass and Pink Noise"
@@ -17,6 +17,11 @@
               pluginFormats="buildAU,buildStandalone,buildVST3">
   <MAINGROUP id="yjfreO" name="gananciaSimple">
     <GROUP id="{433E061D-1682-9DBC-0868-35F3D2A9D095}" name="assets">
+      <FILE id="hKRsKf" name="emoji_cry.png" compile="0" resource="1" file="assets/emoji_cry.png"/>
+      <FILE id="zOv0Gx" name="emoji_glass.png" compile="0" resource="1" file="assets/emoji_glass.png"/>
+      <FILE id="StxW4Z" name="emoji_laugh.png" compile="0" resource="1" file="assets/emoji_laugh.png"/>
+      <FILE id="ds28wQ" name="emoji_normal.png" compile="0" resource="1"
+            file="assets/emoji_normal.png"/>
       <FILE id="n3utmt" name="emoji.png" compile="0" resource="1" file="assets/emoji.png"/>
       <FILE id="IU0ffA" name="background.jpg" compile="0" resource="1" file="assets/background.jpg"/>
     </GROUP>
