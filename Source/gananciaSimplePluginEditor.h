@@ -9,7 +9,7 @@ enum DisplayNamePosition { DisplayNameNone, DisplayNameLeft, DisplayNameRight, D
 
 Colour getBackgroundColor()
 {
-    return Colour::fromFloatRGBA(0.4f, 0.4f, 0.4f, 1.f);
+    return Colour::fromFloatRGBA(0.8f, 0.4f, 0.4f, 1.f);
 }
 
 Colour getForegroundColor()
@@ -43,6 +43,7 @@ public:
         //background = juce::ImageCache::getFromMemory(BinaryData::background_jpg, BinaryData::background_jpgSize);
         //g.drawImageWithin(background, 0, 0, bounds.getWidth(), bounds.getHeight(), juce::RectanglePlacement::stretchToFit);
 
+        // renderizar la imagen png
         emoji = juce::ImageCache::getFromMemory(BinaryData::emoji_png, BinaryData::emoji_pngSize);
         emoji2 = juce::ImageCache::getFromMemory(BinaryData::emoji_png, BinaryData::emoji_pngSize);
 
@@ -58,9 +59,9 @@ public:
         }
 
         // rotacion de la imagen, teniendo en cuenta el valor del slider y seteando puntos centrales de pivot
-        g.drawImageTransformed(emoji, trasformer.rotated(actual_val*4, (512.0f*0.8f)/2, (512.0f * 0.8f)/2).scaled(scaling_1));
-        g.drawImageTransformed(emoji2, trasformer.rotated(actual_val * 4, (512.0f * 0.8f) / 2, (512.0f * 0.8f) / 2).scaled(0.4));
-        emoji2.desaturate();
+        // . scaled = es el metodo que setea la escala, y que puede ser variable
+        g.drawImageTransformed(emoji, trasformer.rotated(actual_val*4, (512.0f*0.8f)/2, (512.0f * 0.8f)/2).scaled(1.0));
+
         //g.drawImageTransformed(emoji, trasformer);
         
         //emoji.desaturate();
@@ -164,6 +165,40 @@ public:
 };
 
 
+class WaveformComponent : public Component
+{
+public:
+    WaveformComponent()
+    {
+        setSize(500, 200);
+    }
+
+    void paint(Graphics& g) override
+    {
+        g.fillAll(Colour(0xff0000ff));
+        g.setColour(Colour(0xffffffff));
+
+        const int numSamples = 1024;
+        float samples[numSamples];
+
+        // Obtenga los datos de muestra para la forma de onda
+        // ...
+
+        Path path;
+        path.startNewSubPath(0.0f, getHeight() / 2.0f);
+
+        for (int i = 0; i < numSamples; ++i)
+        {
+            const float x = static_cast<float> (i) / static_cast<float> (numSamples) * getWidth();
+            const float y = (samples[i] * 0.5f + 0.5f) * getHeight();
+
+            path.lineTo(x, y);
+        }
+
+        g.strokePath(path, PathStrokeType(2.0f));
+    }
+};
+
 
 //==============================================================================
 /**
@@ -211,6 +246,7 @@ public:
 
         auto dialArea = area;
         dial1.setBounds(dialArea);
+
     }
 
 private:
