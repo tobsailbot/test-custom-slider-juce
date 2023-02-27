@@ -24,7 +24,7 @@ public:
     {
         setColour(juce::Slider::thumbColourId, juce::Colours::blue);
         setColour(juce::Slider::rotarySliderFillColourId, juce::Colours::orange);
-        setColour(juce::Slider::rotarySliderOutlineColourId, juce::Colours::red);
+        setColour(juce::Slider::rotarySliderOutlineColourId, juce::Colours::black);
     }
 
     void drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
@@ -60,7 +60,9 @@ public:
 
         // rotacion de la imagen, teniendo en cuenta el valor del slider y seteando puntos centrales de pivot
         // . scaled = es el metodo que setea la escala, y que puede ser variable
-        g.drawImageTransformed(emoji, trasformer.rotated(actual_val*4, (512.0f*0.8f)/2, (512.0f * 0.8f)/2).scaled(1.0));
+
+        // Dibuja la imagen png y la hace rotar
+        //g.drawImageTransformed(emoji, trasformer.rotated(actual_val*4, (512.0f*0.8f)/2, (512.0f * 0.8f)/2).scaled(1.0));
 
         //g.drawImageTransformed(emoji, trasformer);
         
@@ -68,7 +70,7 @@ public:
        // emoji.multiplyAllAlphas(0.5);
         DBG(slider.getValue());
 
-        auto radius = jmin(bounds.getWidth(), bounds.getHeight()) / 2.0f;
+        auto radius = jmin(bounds.getWidth()/2, bounds.getHeight()/2) - 2.0f;
         auto toAngle = rotaryStartAngle + sliderPos * (rotaryEndAngle - rotaryStartAngle);
         auto lineW = jmin(20.0f, radius * 0.5f);
         auto arcRadius = radius - lineW * 0.5f;
@@ -80,11 +82,33 @@ public:
 
         // fill
         g.setColour(juce::Colours::blue);
-        //g.fillEllipse(rx, ry, rw, rw);
+        g.fillEllipse(rx, ry, rw, rw);
+        // outline
+        g.setColour(juce::Colours::red);
+        g.drawEllipse(rx, ry, rw, rw, 1.0f);
 
         // fondo del arco, background
-        Path backgroundArc;
-        backgroundArc.addCentredArc(bounds.getCentreX(),
+       // Path backgroundArc;
+       // backgroundArc.addCentredArc(bounds.getCentreX(),
+         //   bounds.getCentreY(),
+           // arcRadius,
+            //arcRadius,
+           // 0.0f,
+           // rotaryStartAngle,
+           // rotaryEndAngle,
+           // true);
+
+        // g.setColour(outline);
+
+        // g.strokePath(backgroundArc, PathStrokeType(lineW, PathStrokeType::curved, PathStrokeType::rounded));
+
+
+        // Crea un nuevo path con linea punteada
+        Path p;
+
+        /* draw your arc */
+        p.startNewSubPath(0.0, bounds.getHeight() * 0.5);
+        p.addCentredArc(bounds.getCentreX(),
             bounds.getCentreY(),
             arcRadius,
             arcRadius,
@@ -93,8 +117,20 @@ public:
             rotaryEndAngle,
             true);
 
-        g.setColour(outline);
-        g.strokePath(backgroundArc, PathStrokeType(lineW, PathStrokeType::curved, PathStrokeType::rounded));
+        g.setColour(juce::Colours::black);
+
+        /* create path stroke type, */
+        PathStrokeType stroke(2.0);
+
+        /* create an array for your dash lengths */
+        float dash[2] = { 20.0, 2.0};
+        auto dash_transform = AffineTransform::AffineTransform();
+
+        /* create the dashes */
+        stroke.createDashedStroke(p, p, dash, 1);
+        stroke.setStrokeThickness(10.0);
+        /* paint */
+        g.strokePath(p, stroke);
 
         // interior del arcorelleno, fill
         if (slider.isEnabled())
@@ -110,10 +146,21 @@ public:
                 true);
 
             g.setColour(fill);
-            g.strokePath(valueArc, PathStrokeType(lineW, PathStrokeType::beveled, PathStrokeType::rounded));
 
-            g.setOpacity(0.2f);
+            /* create path stroke type, */
+            PathStrokeType stroke_value(5.0);
+
+            /* create the dashes */
+            stroke.createDashedStroke(valueArc, valueArc, dash, 1);
+
+            /* paint */
+            g.strokePath(valueArc, stroke_value);
+            g.setOpacity(1.0f);
         }
+
+
+
+
 
 
 
